@@ -1,6 +1,30 @@
-  <!doctype html>
-  <meta charset="utf-8">
-  <pre id="out"></pre>
-  <script>
-  out.textContent = document.cookie || "(empty)";
-  </script>
+<!doctype html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cookie 获取</title>
+<style>
+  /* 手机适配 + 超大字体 */
+  body {
+    margin: 0;
+    padding: 20px;
+    background: #000;
+    color: #0f0;
+    font-size: 22px; /* 手机超大字体 */
+    line-height: 1.8;
+  }
+  pre {
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    font-size: inherit;
+  }
+</style>
+
+<pre id="out"></pre>
+
+<script>
+  // 获取 Cookie 并自动分行显示
+  const cookie = document.cookie || "(empty)";
+  // 把 ; 分割的 Cookie 自动换行
+  const formatted = cookie.split('; ').join('\n\n');
+  out.textContent = formatted;
+</script>
