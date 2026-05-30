@@ -1,0 +1,60 @@
+<!doctype html>
+<meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy"
+      content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; connect-src
+      'none'; img-src 'none'; form-action 'none'; base-uri 'none'">
+<title>HR Local Proof</title>
+<style>
+body{font-family:monospace;padding:16px;background:#111;color:#eee}
+.ok{color:#8f8}.bad{color:#f88}
+pre{white-space:pre-wrap;word-break:break-all}
+</style>
+<h3>Health Research Local Proof</h3>
+<pre id="out">running...</pre>
+<script>
+/* 防止页面脚本误外传 */
+window.fetch = () => Promise.reject(new Error("network disabled"));
+window.XMLHttpRequest = function(){ throw new Error("XHR disabled"); };
+navigator.sendBeacon = () => false;
+window.WebSocket = function(){ throw new Error("WS disabled"); };
+window.EventSource = function(){ throw new Error("SSE disabled"); };
+window.Image = function(){ throw new Error("Image disabled"); };
+
+async function sha256Prefix(s) {
+  try {
+    const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(String(s)));
+    return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, "0")).join("").slice(0, 16);
+  } catch (e) {
+    return "hash_unavailable";
+  }
+}
+
+// 👇 只改这里：输出明文
+async function summarize(name, value) {
+  const s = value == null ? "" : String(value);
+  const hash = s ? await sha256Prefix(s) : "-";
+  return `${name}: present=${s.length > 0}, len=${s.length}, sha256_16=${hash}\n           明文 = [${s}]`;
+}
+
+(async () => {
+  const lines = [];
+  lines.push("origin=" + location.origin);
+  lines.push("android_type=" + typeof android);
+
+  try {
+    const rk = android && android.getResearchkitToken ? android.getResearchkitToken() : "";
+    lines.push(await summarize("getResearchkitToken", rk));
+  } catch (e) {
+    lines.push("getResearchkitToken: error=" + e);
+  }
+
+  try {
+    const xp = android && android.getXProtocol ? android.getXProtocol() : "";
+    lines.push(await summarize("getXProtocol", xp));
+  } catch (e) {
+    lines.push("getXProtocol: error=" + e);
+  }
+
+  document.getElementById("out").textContent = lines.join("\n");
+})();
+</script>
